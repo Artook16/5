@@ -26,17 +26,32 @@ def generate_optimal_triangles(points, min_area=1.0):
     optimal_triangles = []
     max_area = 0
     best_triangle = None
-
-    for triangle in combinations(points, 3):
-        a, b, c = triangle
-        area = calculate_area(a, b, c)
-
-        if area >= min_area:
-            optimal_triangles.append(triangle)
-            if area > max_area:
-                max_area = area
-                best_triangle = triangle
-
+    n = len(points)
+    
+    sorted_points = sorted(points)
+    
+    for i in range(n):
+        a = sorted_points[i]
+        for j in range(i + 1, n):
+            b = sorted_points[j]
+            max_possible_area = 0.5 * abs(b[0] - a[0]) * (max(p[1] for p in sorted_points[j+1:]) - a[1]) if j+1 < n else 0
+            if max_possible_area < min_area:
+                continue 
+            
+            for k in range(j + 1, n):
+                c = sorted_points[k]
+                area = calculate_area(a, b, c)
+                
+                if area >= min_area:
+                    triangle = (a, b, c)
+                    optimal_triangles.append(triangle)
+                    if area > max_area:
+                        max_area = area
+                        best_triangle = triangle
+                        
+                    if area > 2 * min_area and k + 1 < n:
+                        k += min(3, n - k - 1)
+    
     return optimal_triangles, best_triangle, max_area
 
 
